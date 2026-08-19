@@ -1,111 +1,115 @@
 # DNS Configuration
 
-## Overview
+## Purpose
 
-The Project X Domain Controller also provides DNS services for the Active Directory environment.
+DNS runs on the Windows Server 2025 domain controller at `10.0.0.5`. It provides authoritative resolution for the Active Directory domain and forwards unresolved external queries to `8.8.8.8`.
 
-```text
-DNS Server:  Windows Server 2025 Domain Controller
-IP Address:  10.0.0.5
-AD Domain:   corp.project-x-dc.com
-```
-
-DNS is a critical dependency of Active Directory. Domain-connected systems use DNS to locate Domain Controllers and other Active Directory services.
-
-## Internal DNS
-
-The Windows Server DNS role was installed alongside the Active Directory environment.
-
-Domain systems use the Domain Controller's DNS service to resolve resources associated with:
+## Resolution design
 
 ```text
-corp.project-x-dc.com
+Lab client -> project-x-dc (10.0.0.5) -> internal AD DNS zone
+                                         `-> 8.8.8.8 for unresolved external names
 ```
 
-The intended DNS flow for domain clients is:
+The clients' DNS server is `10.0.0.5`. The public resolver `8.8.8.8` is configured as a forwarder on the DNS server, not as the preferred DNS server on domain clients.
 
-```text
-Windows Client
-  10.0.0.100
-       │
-       │ DNS Query
-       ▼
-Domain Controller
-   10.0.0.5
-       │
-       ├── Internal AD resource
-       │        │
-       │        └── Resolve internally
-       │
-       └── External resource
-                │
-                ▼
-          DNS Forwarder
-             8.8.8.8
-                │
-                ▼
-             Internet
+## Configuration summary
+
+| Setting | Value |
+|---|---|
+| DNS server | `project-x-dc` |
+| DNS server address | `10.0.0.5` |
+| AD-integrated zone | `corp.project-x-dc.com` |
+| External forwarder | `8.8.8.8` |
+| Client DNS distributed through DHCP | `10.0.0.5` |
+
+## Important naming distinction
+
+- Domain name: `corp.project-x-dc.com`
+- DC hostname: `project-x-dc`
+- Expected DC FQDN: `project-x-dc.corp.project-x-dc.com`
+
+Verify the exact DC FQDN with:
+
+```powershell
+hostname
+$env:USERDNSDOMAIN
+[System.Net.Dns]::GetHostEntry($env:COMPUTERNAME).HostName
 ```
 
-## External DNS Forwarding
+## Forwarder configuration record
 
-The Windows DNS Server was configured with the external forwarder:
+1. Open **DNS Manager** on `project-x-dc`.
+2. Open the server properties.
+3. Select **Forwarders**.
+4. Add `8.8.8.8`.
+5. Apply the change and verify that the forwarder resolves external names.
 
-```text
-8.8.8.8
-```
+The DC's network adapter should use the internal DNS service - normally its own address - not `8.8.8.8` as the primary client resolver.
 
-External DNS queries that cannot be resolved by the internal DNS infrastructure can therefore be forwarded for external resolution.
+## Recommended records
 
-Domain clients do not need to query the external resolver directly. Instead, they can use the Domain Controller as their DNS server while the Domain Controller handles forwarding when necessary.
+| Name | Type | Address |
+|---|---|---:|
+| `project-x-dc` | `A` | `10.0.0.5` |
+| `project-x-corp-srv` | `A` | `10.0.0.8` |
+| `project-x-sec-box` | `A` | `10.0.0.10` |
 
-## Why This Matters
-
-Using the Domain Controller as the DNS server allows Active Directory clients to locate domain services while maintaining external name resolution.
-
-Configuring a domain workstation to use only an external resolver such as `8.8.8.8` could interfere with Active Directory service discovery because the public resolver does not contain the lab's internal AD DNS records.
+Dynamic updates may create records for domain clients. If DHCP addresses are not reserved, stale records should be monitored and scavenging configured carefully.
 
 ## Validation
 
-The Domain Controller's network and DNS configuration can be inspected with:
+From the Windows client:
 
 ```powershell
 ipconfig /all
+Resolve-DnsName corp.project-x-dc.com
+Resolve-DnsName project-x-dc.corp.project-x-dc.com
+Resolve-DnsName project-x-sec-box.corp.project-x-dc.com
+Resolve-DnsName example.com
 ```
 
-Internal domain resolution can be tested using:
+From Ubuntu:
+
+```bash
+resolvectl status
+dig @10.0.0.5 corp.project-x-dc.com
+dig @10.0.0.5 example.com
+```
+
+Expected behavior:
+
+- Internal names are answered by the DC.
+- External names are requested through the DC and forwarded upstream.
+- Domain clients show `10.0.0.5` as their DNS server.
+
+## Troubleshooting
+
+### External names fail but internal names work
+
+- Confirm the `8.8.8.8` forwarder is present and reachable from the DC.
+- Verify the DC has a valid default gateway of `10.0.0.1`.
+- Test resolution directly from the DC.
+- Review the DNS Server event log.
+
+### Domain discovery fails
+
+- Confirm the client is using only `10.0.0.5` for DNS.
+- Confirm AD SRV records exist.
+- Flush the client cache and re-register DNS:
 
 ```powershell
-nslookup corp.project-x-dc.com
+ipconfig /flushdns
+ipconfig /registerdns
 ```
 
-External DNS resolution can be tested using:
+- Test domain-controller discovery:
 
 ```powershell
-nslookup google.com
+nslookup -type=SRV _ldap._tcp.dc._msdcs.corp.project-x-dc.com
 ```
 
-The Windows client can also be checked with:
+## References
 
-```powershell
-ipconfig /all
-```
-
-to verify which DNS server it is using.
-
-## Current Status
-
-* [x] Installed Windows DNS Server role
-* [x] Integrated DNS with Active Directory environment
-* [x] Configured external DNS forwarding
-* [x] Added `8.8.8.8` as external forwarder
-* [ ] Document DNS records
-* [ ] Validate AD service discovery
-* [ ] Capture validation evidence
-* [ ] Monitor DNS activity through security infrastructure
-
-## Security Relevance
-
-DNS provides valuable security telemetry because both legitimate applications and malicious activity frequently depend on name resolution.
-
-Later stages of Project X can use DNS telemetry to investigate activity such as unusual domain lookups, compromised endpoint behavior, reconnaissance, and communications with suspicious infrastructure.
+- [Microsoft: DNS forwarding](https://learn.microsoft.com/en-us/windows-server/networking/dns/forwarding)
+- [Microsoft: DNS client best practices](https://learn.microsoft.com/en-us/troubleshoot/windows-server/networking/best-practices-for-dns-client-settings)

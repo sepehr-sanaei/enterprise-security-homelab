@@ -12,12 +12,12 @@ flowchart TB
 
         subgraph INFRA["Identity and infrastructure"]
             DC["project-x-dc<br/>Windows Server 2025<br/>10.0.0.5<br/>AD DS - DNS - DHCP - Wazuh agent"]
-            MAIL["project-x-corp-svr<br/>Ubuntu 22.04<br/>10.0.0.8<br/>MailHog 1025/8025"]
+            MAIL["project-x-email-svr<br/>Ubuntu 22.04<br/>10.0.0.8<br/>MailHog 1025/8025"]
         end
 
         subgraph SOC["Security operations"]
             WAZUH["project-x-sec-box<br/>Ubuntu 22.04<br/>10.0.0.10<br/>Wazuh server"]
-            KALI["project-x-attacker<br/>Kali Linux<br/>DHCP: ~10.0.0.103<br/>Authorized testing"]
+            KALI["project-x-sec-work<br/>Kali Linux<br/>DHCP: ~10.0.0.103<br/>Authorized testing"]
         end
 
         subgraph ENDPOINTS["Monitored endpoints"]

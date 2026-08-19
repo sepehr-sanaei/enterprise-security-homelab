@@ -23,11 +23,11 @@ MailHog is an additional isolated application service used to capture test email
 | Hostname | Addressing | Operating system | Services and responsibilities |
 |---|---:|---|---|
 | `project-x-dc` | Static `10.0.0.5` | Windows Server 2025 | AD DS, DNS, DHCP, Wazuh agent |
-| `project-x-corp-svr` | Static `10.0.0.8` | Ubuntu Server 22.04 | MailHog SMTP capture and web UI |
+| `project-x-email-svr` | Static `10.0.0.8` | Ubuntu Server 22.04 | MailHog SMTP capture and web UI |
 | `project-x-sec-box` | Static `10.0.0.10` | Ubuntu Server 22.04 | Wazuh manager, indexer and dashboard |
 | `project-x-win-client` | DHCP, expected `10.0.0.100` | Windows 11 Enterprise | Domain member and Wazuh agent |
 | `project-x-linux-client` | DHCP, expected `10.0.0.101` | Ubuntu 22.04 | Linux endpoint, Apache and Wazuh agent |
-| `project-x-attacker` | DHCP, expected `10.0.0.50` | Kali Linux | Authorized attack simulation and validation |
+| `project-x-sec-work` | DHCP, expected `10.0.0.103` | Kali Linux | Authorized attack simulation and validation |
 
 ## Network parameters
 
@@ -70,7 +70,7 @@ Wazuh agents send telemetry to `project-x-sec-box`. Agent communication is initi
 
 ### Attack-simulation boundary
 
-`project-x-attacker` is untrusted from the perspective of monitored systems. It is used only for authorized tests against lab-owned targets. It should not hold production credentials or bridge the lab into unrelated networks.
+`project-x-sec-work` is untrusted from the perspective of monitored systems. It is used only for authorized tests against lab-owned targets. It should not hold production credentials or bridge the lab into unrelated networks.
 
 ### Email-testing boundary
 
