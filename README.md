@@ -55,23 +55,23 @@ See [Architecture](architecture/README.md) and the [Network Diagram](architectur
 
 ```text
 .
-â”œâ”€â”€ README.md
-â”œâ”€â”€ architecture/
-â”‚   â”œâ”€â”€ README.md
-â”‚   â””â”€â”€ network-diagram.md
-â”œâ”€â”€ setup/
-â”‚   â”œâ”€â”€ active-directory.md
-â”‚   â”œâ”€â”€ apache.md
-â”‚   â”œâ”€â”€ dhcp.md
-â”‚   â”œâ”€â”€ dns.md
-â”‚   â”œâ”€â”€ mailhog.md
-â”‚   â””â”€â”€ wazuh.md
-â”œâ”€â”€ attack/
-â”‚   â””â”€â”€ README.md
-â”œâ”€â”€ detection/
-â”‚   â””â”€â”€ README.md
-â””â”€â”€ evidence/
-    â””â”€â”€ README.md
+├── README.md
+├── architecture/
+│   ├── README.md
+│   └── network-diagram.md
+├── setup/
+│   ├── active-directory.md
+│   ├── apache.md
+│   ├── dhcp.md
+│   ├── dns.md
+│   ├── mailhog.md
+│   └── wazuh.md
+├── attack/
+│   └── README.md
+├── detection/
+│   └── README.md
+└── evidence/
+    └── README.md
 ```
 
 Each security case should use the same slug under the three case-study areas. For example:
@@ -132,3 +132,4 @@ This keeps execution, defensive engineering, and supporting artifacts separate w
 - [Wazuh log data collection](https://documentation.wazuh.com/current/user-manual/capabilities/log-data-collection/how-it-works.html)
 - [Microsoft DNS client best practices](https://learn.microsoft.com/en-us/troubleshoot/windows-server/networking/best-practices-for-dns-client-settings)
 - [MailHog project documentation](https://github.com/mailhog/MailHog)
+
