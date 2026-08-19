@@ -21,11 +21,11 @@ The environment combines a Windows Active Directory domain, Windows and Linux en
 | System | Operating system | Address | Primary function | Wazuh role |
 |---|---|---:|---|---|
 | `project-x-dc` | Windows Server 2025 | `10.0.0.5` | AD DS, DNS and DHCP | Agent |
-| `project-x-email-svr` | Ubuntu Server 22.04 | `10.0.0.8` | MailHog SMTP test service | Not currently enrolled |
+| `project-x-corp-svr` | Ubuntu Server 22.04 | `10.0.0.8` | MailHog SMTP test service | Not currently enrolled |
 | `project-x-sec-box` | Ubuntu Server 22.04 | `10.0.0.10` | Wazuh manager, indexer and dashboard | Manager |
 | `project-x-win-client` | Windows 11 Enterprise | DHCP; normally `10.0.0.100` | Domain workstation | Agent |
 | `project-x-linux-client` | Ubuntu 22.04 | DHCP; normally `10.0.0.101` | Linux endpoint and Apache test server | Agent |
-| `project-x-sec-work` | Kali Linux | DHCP; normally `10.0.0.103` | Authorized attack and validation workstation | Not currently enrolled |
+| `project-x-attacker` | Kali Linux | DHCP; normally `10.0.0.50` | Authorized attack and validation workstation | Not currently enrolled |
 
 Common network settings:
 
