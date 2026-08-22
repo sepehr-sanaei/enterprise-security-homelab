@@ -2,13 +2,13 @@
 
 This directory documents authorized security simulations performed exclusively inside the Project X homelab.
 
-Create one folder per case:
+All case files live directly inside this folder (no per-case subfolders):
 
 ```text
-attack/<case-name>/README.md
+attack/<case-name>.md
 ```
 
-Each case should include:
+Each case file should include:
 
 - Objective and hypothesis
 - Authorization and scope
@@ -19,12 +19,12 @@ Each case should include:
 - Expected telemetry
 - Safety limits and stop conditions
 - Cleanup steps
-- Links to the matching detection and evidence folders
+- Links to the matching detection and evidence entries
 
 Example:
 
 ```text
-attack/http-get-flood/README.md
+attack/reconnaissance.md
 ```
 
 Do not include credentials, weaponize instructions for third-party targets, or describe a single-source test as DDoS.
