@@ -89,9 +89,3 @@ The alert also carries compliance framework mappings out of the box (PCI DSS `10
 
 This maps to MITRE ATT&CK **T1110 (Brute Force)** and, for the resulting access, **T1078 (Valid Accounts)**.
 
-## Notes / Observations
-
-* **No custom rule was needed** for this detection — rule `40112` is part of Wazuh's default ruleset and fired automatically once the agent began shipping `/var/log/auth.log` to the manager.
-* The alert's `frequency: 2` / `firedtimes: 2` reflects that the underlying correlation condition (failures-then-success) was satisfied twice in this run; the raw failure count (700) is captured separately by the lower-severity per-failure rules, keeping this particular alert focused and low-noise rather than generating hundreds of individual alerts.
-* This confirms the earlier assessment: SSH brute-force detection comes "for free" with a correctly onboarded agent, whereas detecting the Nmap reconnaissance phase of this same attack chain still requires a NIDS (e.g. Suricata) layered on top, since Wazuh's HIDS model only sees what gets logged locally.
-* Next planned step: author a custom `local_rules.xml` rule tuned to a tighter frequency/timeframe than the defaults (e.g. 5 failures in 60 seconds) to reduce time-to-detection, and pair it with an Active Response `firewall-drop` rule to automatically block the source IP once rule `40112` (or a custom equivalent) fires.
